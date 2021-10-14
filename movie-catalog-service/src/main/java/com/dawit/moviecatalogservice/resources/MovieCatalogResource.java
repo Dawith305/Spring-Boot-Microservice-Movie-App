@@ -37,7 +37,7 @@ public class MovieCatalogResource {
 //                new Rating(2, 7)
 //        );
 
-        UserRating ratings = restTemplate.getForObject("http://localhost:7073/ratingsdata/users/"+userId, UserRating.class);
+        UserRating ratings = restTemplate.getForObject("http://rating-data-service/ratingsdata/users/"+userId, UserRating.class);
 
         //stream consists of useful methods
         //for each movie rated get the movie info
@@ -45,7 +45,7 @@ public class MovieCatalogResource {
         return  ratings.getUserRating().stream().map(rating -> {
 
             //using RestTemplate
-            Movie movie = restTemplate.getForObject("http://localhost:7072/movies/"+ rating.getId(), Movie.class);
+            Movie movie = restTemplate.getForObject("http://movie-info-service/movies/"+ rating.getId(), Movie.class);
             return  new CatalogItem(movie.getName(), "Sci-fi", rating.getRating());
 
 
