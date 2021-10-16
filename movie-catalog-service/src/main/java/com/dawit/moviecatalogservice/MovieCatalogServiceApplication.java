@@ -2,6 +2,7 @@ package com.dawit.moviecatalogservice;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.context.annotation.Bean;
@@ -11,6 +12,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 @SpringBootApplication
 @EnableEurekaClient
+@EnableCircuitBreaker
 public class MovieCatalogServiceApplication {
 
 	//Load Balanced: for the Rest template to provide the url to Eureka
@@ -21,12 +23,12 @@ public class MovieCatalogServiceApplication {
 	@LoadBalanced
 	public RestTemplate getRestTemplate(){
 
-		HttpComponentsClientHttpRequestFactory httpComponentsClientHttpRequestFactory = new HttpComponentsClientHttpRequestFactory();
+//		HttpComponentsClientHttpRequestFactory httpComponentsClientHttpRequestFactory = new HttpComponentsClientHttpRequestFactory();
 		//setting a timeout of 3seconds to avoid request overload and
 		// slow and interdependent micro-services won't be responsive
-		httpComponentsClientHttpRequestFactory.setConnectTimeout(3000);
+//		httpComponentsClientHttpRequestFactory.setConnectTimeout(3000);
 
-		return new RestTemplate(httpComponentsClientHttpRequestFactory);
+		return new RestTemplate();
 	}
 
 	@Bean

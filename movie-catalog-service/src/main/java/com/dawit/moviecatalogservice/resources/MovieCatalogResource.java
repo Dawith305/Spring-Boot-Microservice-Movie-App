@@ -5,6 +5,9 @@ import com.dawit.moviecatalogservice.models.CatalogItem;
 import com.dawit.moviecatalogservice.models.Movie;
 import com.dawit.moviecatalogservice.models.Rating;
 import com.dawit.moviecatalogservice.models.UserRating;
+import com.dawit.moviecatalogservice.services.MovieInfoService;
+import com.dawit.moviecatalogservice.services.UserRatingInfoService;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,6 +30,12 @@ public class MovieCatalogResource {
     @Autowired
     private WebClient.Builder webClientBuilder;
 
+    @Autowired
+    MovieInfoService movieInfoService;
+
+    @Autowired
+    UserRatingInfoService userRatingInfoService;
+
     @RequestMapping("/{userId}")
     public List<CatalogItem> getCatalog(@PathVariable("userId") String userId) {
 
@@ -37,7 +46,7 @@ public class MovieCatalogResource {
 //                new Rating(2, 7)
 //        );
 
-        UserRating ratings = restTemplate.getForObject("http://rating-data-service/ratingsdata/users/"+userId, UserRating.class);
+        UserRating ratings = userRatingInfoService.getRatingsData(userId);
 
         //stream consists of useful methods
         //for each movie rated get the movie info
@@ -45,11 +54,12 @@ public class MovieCatalogResource {
         return  ratings.getUserRating().stream().map(rating -> {
 
             //using RestTemplate
-            Movie movie = restTemplate.getForObject("http://movie-info-service/movies/"+ rating.getId(), Movie.class);
-            return  new CatalogItem(movie.getName(), "Sci-fi", rating.getRating());
+            return movieInfoService.getMovieInfo(rating);
+
+        }).collect(Collectors.toList());
 
 
-            //using Reactive Java Webclient Builder
+        //using Reactive Java Webclient Builder
 //            Movie movie = webClientBuilder.build()
 //                    .get()
 //                    .uri("http://localhost:7072/movies/" + rating.getId())
@@ -57,11 +67,6 @@ public class MovieCatalogResource {
 //                    .bodyToMono(Movie.class)
 //                    //block till the async mono returns the result
 //                    .block();
-
-        }).collect(Collectors.toList());
-
-
-
 
     }
 }
